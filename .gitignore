@@ -10,3 +10,10 @@ ENV/
 
 # Other
 .DS_Store
+
+# SSL Certificates
+*.pem
+
+# Audio Cache
+audio_cache/    
+
