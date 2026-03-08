@@ -17,15 +17,8 @@ from datetime import datetime
 app = Flask(__name__)
 CORS(app)
 
-# Load YOLOv8 nano model
-model = YOLO('yolov8n.pt')
-
-# Priority objects for navigation
-PRIORITY_OBJECTS = {
-    'person', 'chair', 'couch', 'bed', 'dining table', 'door', 
-    'stairs', 'bicycle', 'car', 'motorcycle', 'bench', 'backpack',
-    'handbag', 'suitcase', 'bottle', 'cup'
-}
+# Load YOLOv8 small model for improved detection
+model = YOLO('yolov8s.pt')
 
 # Audio cache directory
 AUDIO_DIR = 'audio_cache'
@@ -48,7 +41,7 @@ def get_position(x_center, frame_width):
     elif x_center > right_threshold:
         return "right"
     else:
-        return "ahead"
+        return "center"
 
 def generate_audio(text):
     """Generate audio file from text using gTTS"""
@@ -100,9 +93,7 @@ def detect_objects():
                 conf = float(box.conf[0])
                 class_name = model.names[cls]
                 
-                # Only process priority objects
-                if class_name not in PRIORITY_OBJECTS:
-                    continue
+                # Detect all objects YOLO is capable of recognizing
                 
                 # Get bounding box coordinates
                 x1, y1, x2, y2 = box.xyxy[0].cpu().numpy()
@@ -123,7 +114,7 @@ def detect_objects():
                 elif size_ratio > 0.08:
                     distance = "close"
                 else:
-                    distance = "ahead"
+                    distance = "far"
                 
                 detection = {
                     'object': class_name,
@@ -159,28 +150,46 @@ def detect_objects():
         return jsonify({'error': str(e)}), 500
 
 def generate_guidance_message(detections):
-    """Generate concise audio guidance message"""
+    """Generate concise audio guidance message with path routing"""
     if not detections:
-        return "Path clear"
+        return "Path clear ahead."
     
     # Sort by size (closest first)
     detections.sort(key=lambda x: x['size_ratio'], reverse=True)
     
-    # Take top 3 most relevant objects
-    top_detections = detections[:3]
+    blocked_areas = set()
+    for det in detections:
+        if det['distance'] in ["very close", "close"]:
+            blocked_areas.add(det['position'])
+            
+    # Determine path recommendation
+    if "center" in blocked_areas:
+        if "left" not in blocked_areas and "right" not in blocked_areas:
+            action = "Obstacles ahead, move left or right."
+        elif "left" not in blocked_areas:
+            action = "Obstacle ahead, move left."
+        elif "right" not in blocked_areas:
+            action = "Obstacle ahead, move right."
+        else:
+            action = "Stop! Path blocked."
+    else:
+        action = "Path clear ahead."
+        
+    messages = [action]
     
-    messages = []
-    for det in top_detections:
+    # Tell them about the top 2 closest objects
+    limit = 2
+    for det in detections[:limit]:
         obj = det['object']
         pos = det['position']
         dist = det['distance']
         
         if dist == "very close":
-            messages.append(f"{obj.capitalize()} {pos}, very close")
-        else:
-            messages.append(f"{obj.capitalize()} {pos}")
-    
-    return ". ".join(messages)
+            messages.append(f"{obj} {pos}, very close.")
+        elif dist == "close":
+            messages.append(f"{obj} {pos}.")
+            
+    return " ".join(messages)
 
 @app.route('/audio/<filename>')
 def serve_audio(filename):
@@ -193,11 +202,11 @@ def serve_audio(filename):
 @app.route('/health')
 def health():
     """Health check endpoint"""
-    return jsonify({'status': 'running', 'model': 'YOLOv8n'})
+    return jsonify({'status': 'running', 'model': 'YOLOv8s'})
 
 if __name__ == '__main__':
     print("Starting Visual Navigation Assistant...")
-    print("Make sure YOLOv8 nano model is downloaded (yolov8n.pt)")
+    print("Make sure YOLOv8 small model is downloaded (yolov8s.pt)")
     print("Installing required packages: flask, flask-cors, ultralytics, gtts, opencv-python")
     
     # Check if SSL certificates exist
