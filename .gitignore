@@ -15,5 +15,11 @@ ENV/
 *.pem
 
 # Audio Cache
-audio_cache/    
+audio_cache/
 
+# YOLO & PyTorch model weights
+*.pt
+*.pth
+
+# PyTorch Hub cache (MiDaS model downloads)
+hub/
