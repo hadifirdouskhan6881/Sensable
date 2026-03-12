@@ -1,53 +1,101 @@
 # Sensable: Visual Navigation Assistant
 
-This is a Flask-based web application designed to act as a visual navigation assistant for visually impaired users. It uses the YOLOv8 object detection model to identify objects in a video stream and provides audio guidance using text-to-speech.
+Sensable is an intelligent navigation assistant designed to help visually impaired individuals navigate their surroundings safely. By combining real-time object detection with advanced depth estimation, the application identifies obstacles and provides immediate audio feedback to guide the user.
 
-## Prerequisites
+## 🌟 Key Features
 
-Before running the application, make sure you have Python installed on your computer.
+- **Real-time Object Detection:** Uses **YOLOv8** to identify common objects like chairs, people, doors, and tables.
+- **Smart Obstacle Detection:** Leverages **MiDaS (Monocular Depth Estimation)** to detect generic barriers like walls and solid objects, even if they aren't recognized by the object detection model.
+- **Audio Guidance:** Converts detection results into clear, concise voice instructions using **Google Text-to-Speech (gTTS)**.
+- **Prioritized Feedback:** Intelligently filters audio alerts to focus on immediate threats in the user's path, reducing "audio spam."
+- **Low Hardware Barrier:** Runs on a standard laptop (GPU recommended) and can be accessed via a mobile browser over a local network.
 
-## Setup Instructions
+---
 
-1. **Open your terminal or command prompt** and navigate to the project folder (`c:\Users\hadif\OneDrive\Desktop\Upload to Git` or wherever you cloned the repository).
+## 🚀 Getting Started (Beginner Friendly)
 
-2. **(Optional but recommended) Create a virtual environment:**
-   This keeps the project's dependencies separate from your main Python installation.
+Follow these steps to get the project running on your local machine.
+
+### 1. Prerequisites
+
+Make sure you have the following installed:
+- **Python (3.8 or higher):** [Download Python](https://www.python.org/downloads/)
+- **Git:** [Download Git](https://git-scm.com/downloads)
+
+### 2. Clone the Repository
+
+Open your terminal (Command Prompt, PowerShell, or Terminal) and run:
+
+```bash
+git clone https://github.com/hadifirdouskhan6881/Sensable.git
+cd Sensable
+```
+
+### 3. Create a Virtual Environment (Recommended)
+
+This keeps the project's libraries organized and separate from your system Python.
+
+**On Windows:**
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
+
+**On macOS/Linux:**
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+### 4. Install Dependencies
+
+Install all the necessary AI models and web libraries with one command:
+
+```bash
+pip install flask flask-cors ultralytics gtts opencv-python numpy torch torchvision timm
+```
+
+### 5. (Optional) Setup SSL for Camera Access
+
+Browsers require **HTTPS** to allow camera access on devices other than `localhost`. To enable this on your local network:
+
+1. Run the certificate generator (if you have one) or generate them manually:
    ```bash
-   python -m venv venv
+   openssl req -x509 -newkey rsa:4096 -nodes -out cert.pem -keyout key.pem -days 365
    ```
-   Activate it:
-   - On Windows: `venv\Scripts\activate`
-   - On macOS/Linux: `source venv/bin/activate`
+2. The app will automatically detect `cert.pem` and `key.pem` and switch to HTTPS mode.
 
-3. **Install the required packages:**
-   Run the following command to install all the necessary libraries (Flask, YOLO, OpenCV, etc.):
-   ```bash
-   pip install -r requirements.txt
-   ```
-   *(If you don't have a `requirements.txt` file, you can install them manually by running: `pip install flask flask-cors ultralytics gtts opencv-python numpy`)*
+---
 
-4. **SSL Certificates (For HTTPS - Optional but needed for camera access on some browsers):**
-   If you want to run the app with HTTPS, you can use the included `generate_cert.py` to create local certificates:
-   ```bash
-   python generate_cert.py
-   ```
-   This will generate `cert.pem` and `key.pem` files.
+## 🏃 Running the App
 
-## How to Run
-
-1. Start the Flask server by running the main application script:
+1. **Start the server:**
    ```bash
    python app.py
    ```
+   *Note: On the first run, the app will download the YOLOv8 (`yolov8s.pt`) and MiDaS models. This might take a few minutes depending on your internet speed.*
 
-2. When the server starts, it will print some text in the console. It will also automatically download the YOLOv8 nano model (`yolov8n.pt`) the first time you run it.
+2. **Access the interface:**
+   - Look at the terminal output for the address (usually `https://127.0.0.1:5000`).
+   - Open that link in your browser.
+   - If you are on the same Wi-Fi, you can open the **Network IP** (e.g., `https://192.168.1.X:5000`) on your smartphone.
 
-3. Open your web browser and go to the address shown in the terminal.
-   - If running with HTTP: `http://localhost:5000` or `http://127.0.0.1:5000`
-   - If running with HTTPS (SSL certificates): `https://localhost:5000` or `https://127.0.0.1:5000`
+3. **Grant camera permissions** when prompted, and you're ready to go!
 
-4. Grant your browser permission to access your webcam when prompted. The application will start analyzing the feed and providing audio guidance for objects like people, chairs, tables, doors, etc.
+---
 
-## Troubleshooting
-- **No camera access?** Browsers often restrict camera access strictly to `https://` sites (unless you are using exactly `localhost`). If you are accessing the app from another device on the network, make sure to generate the SSL certificates and use `https://`.
-- **Missing YOLO model?** The `ultralytics` library should download `yolov8n.pt` automatically, but if it fails, ensure you have an active internet connection on the first run.
+## 🛠 Tech Stack
+
+- **Backend:** Flask (Python)
+- **Computer Vision:** Ultralytics YOLOv8, Intel MiDaS
+- **Deep Learning:** PyTorch
+- **Audio:** Google Text-to-Speech (gTTS)
+- **Frontend:** HTML5, CSS3, JavaScript (Webcam streaming)
+
+---
+
+## ⚠️ Troubleshooting
+
+- **"Camera not found"**: Ensure you are using `https://` if accessing from a phone.
+- **Slow Performance**: The app performs best with a dedicated GPU (e.g., RTX 30/40 series). If running on a CPU, expect a slight delay in audio feedback.
+- **Model Download Errors**: Ensure you have a stable internet connection for the first startup.
