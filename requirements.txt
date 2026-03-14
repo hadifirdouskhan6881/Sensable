@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 flask==3.1.3
 flask-cors==6.0.2
 numpy>=2.4.3
@@ -14,3 +15,20 @@ torch>=2.10.0
 torchvision>=0.25.0
 ultralytics>=8.4.21
 #pip install -r requirements.txt
+=======
+flask==3.0.0
+flask-cors==4.0.0
+numpy>=2.0.0
+opencv-python>=4.9.0
+gtts==2.5.0
+pyopenssl>=23.0.0
+pillow>=10.0.0
+scipy>=1.11.0
+matplotlib>=3.8.0
+pyyaml>=6.0
+requests>=2.31.0
+tqdm>=4.65.0
+torch>=2.1.0
+torchvision>=0.16.0
+ultralytics>=8.1.0
+>>>>>>> 1183379b5ad77093b32d11319d801bfbf0272759
