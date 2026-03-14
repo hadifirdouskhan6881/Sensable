@@ -52,6 +52,10 @@ source venv/bin/activate
 Install all the necessary AI models and web libraries with one command:
 
 ```bash
+pip intall requirements.txt
+
+#or
+
 pip install flask flask-cors ultralytics gtts opencv-python numpy torch torchvision timm
 ```
 
@@ -98,4 +102,4 @@ Browsers require **HTTPS** to allow camera access on devices other than `localho
 
 - **"Camera not found"**: Ensure you are using `https://` if accessing from a phone.
 - **Slow Performance**: The app performs best with a dedicated GPU (e.g., RTX 30/40 series). If running on a CPU, expect a slight delay in audio feedback.
-- **Model Download Errors**: Ensure you have a stable internet connection for the first startup.
+- **Model Download Errors**: Ensure you have a stable internet connection for the first startup.
