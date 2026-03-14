@@ -66,9 +66,10 @@ Browsers require **HTTPS** to allow camera access on devices other than `localho
 1. Run the certificate generator (if you have one) or generate them manually:
    ```bash
    python generate_cert.py
-
-    #or
-  
+   ```
+   or
+   
+   ```bash
    openssl req -x509 -newkey rsa:4096 -nodes -out cert.pem -keyout key.pem -days 365
    ```
 2. The app will automatically detect `cert.pem` and `key.pem` and switch to HTTPS mode.
