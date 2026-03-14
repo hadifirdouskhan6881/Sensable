@@ -52,7 +52,7 @@ source venv/bin/activate
 Install all the necessary AI models and web libraries with one command:
 
 ```bash
-pip intall requirements.txt
+pip intall -r requirements.txt
 
 #or
 
