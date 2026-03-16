@@ -108,3 +108,9 @@ Browsers require **HTTPS** to allow camera access on devices other than `localho
 - **"Camera not found"**: Ensure you are using `https://` if accessing from a phone.
 - **Slow Performance**: The app performs best with a dedicated GPU (e.g., RTX 30/40 series). If running on a CPU, expect a slight delay in audio feedback.
 - **Model Download Errors**: Ensure you have a stable internet connection for the first startup.
+
+
+## Pulling and Pushing to and from Github
+
+## Whenever opening the code, always pull from source control
+## Whenever editing code and you want to post to Github, save > source control > commit with message about what you changed (and where) > commit
