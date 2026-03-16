@@ -18,7 +18,7 @@ Follow these steps to get the project running on your local machine.
 
 ### 1. Prerequisites
 
-Make sure you have the following installed:
+Make sure you have the following things installed:
 - **Python (3.8 or higher):** [Download Python](https://www.python.org/downloads/)
 - **Git:** [Download Git](https://git-scm.com/downloads)
 
