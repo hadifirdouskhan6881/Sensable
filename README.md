@@ -113,4 +113,4 @@ Browsers require **HTTPS** to allow camera access on devices other than `localho
 ## Pulling and Pushing to and from Github
 
 ## Whenever opening the code, always pull from source control
-## Whenever editing code and you want to post to Github, save > source control > commit with message about what you changed (and where) > commit
+## Whenever editing code and you want to post to Github, save > source control > commit with message about what you changed (and where) > commit > syn changes
