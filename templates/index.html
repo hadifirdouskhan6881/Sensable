@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visual Navigation Assistant</title>
+    <title>Sensable</title>
     <!-- Modern Font Option -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -180,7 +180,7 @@
 
         .controls {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(3, 1fr);
             gap: 16px;
             margin-bottom: 24px;
         }
@@ -422,6 +422,10 @@
                 grid-template-columns: 1fr;
             }
 
+            .controls {
+                grid-template-columns: 1fr;
+            }
+
             .video-section {
                 min-height: 300px;
             }
@@ -436,7 +440,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>🦮 Visual Navigation Assistant</h1>
+            <h1>Sensable</h1>
             <p class="subtitle">AI-Powered Obstacle Detection for Visually Impaired Users</p>
         </header>
 
@@ -451,6 +455,7 @@
                     <div class="controls">
                         <button id="startBtn">Start Navigation</button>
                         <button id="stopBtn" disabled>Stop</button>
+                        <button id="fullscreenBtn" disabled>Full Screen Video</button>
                     </div>
                     <div id="status" class="status inactive">System Ready</div>
                     <div class="shortcuts">
@@ -486,6 +491,7 @@
         const video = document.getElementById('videoElement');
         const startBtn = document.getElementById('startBtn');
         const stopBtn = document.getElementById('stopBtn');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
         const statusDiv = document.getElementById('status');
         const messageDiv = document.getElementById('currentMessage');
         const detectionsList = document.getElementById('detectionsList');
@@ -496,6 +502,39 @@
         let isMuted = false;
         let currentAudio = null;
         let isAudioPlaying = false;
+
+        function isVideoFullscreen() {
+            return document.fullscreenElement === video;
+        }
+
+        async function toggleVideoFullscreen() {
+            try {
+                if (!document.fullscreenElement) {
+                    // Fullscreen needs a user gesture; this runs from a button click / key press.
+                    if (video.requestFullscreen) {
+                        await video.requestFullscreen();
+                    } else if (video.webkitRequestFullscreen) {
+                        // Safari fallback
+                        await video.webkitRequestFullscreen();
+                    }
+                } else {
+                    if (document.exitFullscreen) {
+                        await document.exitFullscreen();
+                    }
+                }
+            } catch (e) {
+                console.log('Fullscreen error:', e);
+            }
+        }
+
+        // Keep button label in sync with the browser fullscreen state.
+        document.addEventListener('fullscreenchange', () => {
+            if (isVideoFullscreen()) {
+                fullscreenBtn.textContent = 'Exit Full Screen';
+            } else {
+                fullscreenBtn.textContent = 'Full Screen Video';
+            }
+        });
 
         // Initialize camera
         async function startCamera() {
@@ -632,6 +671,7 @@
             isRunning = true;
             startBtn.disabled = true;
             stopBtn.disabled = false;
+            fullscreenBtn.disabled = false;
             statusDiv.textContent = 'Navigation Active';
             statusDiv.className = 'status active';
 
@@ -647,6 +687,11 @@
 
             startBtn.disabled = false;
             stopBtn.disabled = true;
+            fullscreenBtn.disabled = true;
+            // If we're currently fullscreening the video, exit so the UI returns.
+            if (document.fullscreenElement && isVideoFullscreen() && document.exitFullscreen) {
+                document.exitFullscreen();
+            }
             statusDiv.textContent = 'Navigation Stopped';
             statusDiv.className = 'status inactive';
             messageDiv.textContent = 'Stopped';
@@ -670,6 +715,7 @@
         // Event listeners
         startBtn.addEventListener('click', startNavigation);
         stopBtn.addEventListener('click', stopNavigation);
+        fullscreenBtn.addEventListener('click', toggleVideoFullscreen);
 
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
@@ -683,11 +729,17 @@
             } else if (e.code === 'KeyM') {
                 isMuted = !isMuted;
                 alert(isMuted ? 'Audio muted' : 'Audio unmuted');
+            } else if (e.code === 'KeyF') {
+                // Fullscreen shortcut (only meaningful while running)
+                if (isRunning) {
+                    e.preventDefault();
+                    toggleVideoFullscreen();
+                }
             }
         });
 
         // Initial message
-        console.log('Visual Navigation Assistant loaded');
+        console.log('Sensable loaded');
         console.log('Press Space to start/stop navigation');
     </script>
 </body>
