@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sensable</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #0f172a;
+            background-image:
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.2) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(16, 185, 129, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(239, 68, 68, 0.15) 0px, transparent 50%);
+            color: white;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            animation: fadeUp 0.8s ease;
+            padding: 24px;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 4.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #e0e7ff, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+        }
+
+        p {
+            font-size: 1.3rem;
+            color: #cbd5e1;
+        }
+
+        .hint {
+            margin-top: 40px;
+            font-size: 0.95rem;
+            opacity: 0.65;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 3rem;
+            }
+
+            p {
+                font-size: 1.05rem;
+            }
+        }
+    </style>
+</head>
+
+<body onclick="goToApp()">
+    <div class="container">
+        <h1>Sensable</h1>
+        <p>AI Navigation Assistant</p>
+        <div class="hint">Tap anywhere to start</div>
+    </div>
+
+    <script>
+        function goToApp() {
+            window.location.href = "/app";
+        }
+
+        document.addEventListener("keydown", (e) => {
+            if (e.code === "Enter" || e.code === "Space") {
+                goToApp();
+            }
+        });
+    </script>
+</body>
+
+</html>

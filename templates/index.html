@@ -5,18 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sensable</title>
-    <!-- Modern Font Option -->
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
         :root {
             --primary: #6366f1;
-            --primary-hover: #4f46e5;
             --success: #10b981;
-            --success-hover: #059669;
-            --danger: #ef4444;
-            --danger-hover: #dc2626;
             --bg-blur: rgba(255, 255, 255, 0.05);
             --bg-blur-hover: rgba(255, 255, 255, 0.08);
             --glass-border: rgba(255, 255, 255, 0.1);
@@ -29,6 +26,8 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Outfit', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
         }
 
         body {
@@ -40,22 +39,22 @@
             background-attachment: fixed;
             color: var(--text-main);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 40px 20px;
             overflow-x: hidden;
         }
 
-        .container {
-            max-width: 1200px;
+        .app-shell {
             width: 100%;
-            z-index: 10;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
         }
 
         header {
             text-align: center;
-            margin-bottom: 40px;
+            z-index: 20;
             animation: fade-in-down 0.8s ease-out forwards;
         }
 
@@ -72,49 +71,44 @@
         }
 
         h1 {
-            font-size: 3.5rem;
+            font-size: 3.2rem;
             font-weight: 700;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             background: linear-gradient(135deg, #e0e7ff 0%, #818cf8 100%);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0px 4px 20px rgba(99, 102, 241, 0.2);
             letter-spacing: -1px;
         }
 
         .subtitle {
-            font-size: 1.25rem;
-            font-weight: 400;
+            font-size: 1.05rem;
             color: var(--text-muted);
-            letter-spacing: 0.5px;
         }
 
-        .main-content {
+        .main-layout {
+            width: min(1300px, 100%);
             display: grid;
-            grid-template-columns: 1.3fr 1fr;
-            gap: 24px;
-            margin-bottom: 30px;
+            grid-template-columns: 1.4fr 0.9fr;
+            gap: 20px;
+            align-items: start;
         }
 
-        .glass-panel {
+        .video-wrapper {
+            width: 100%;
+            height: min(78vh, 760px);
             background: var(--bg-blur);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, background 0.3s ease;
-        }
-
-        .video-section {
-            padding: 24px;
+            border-radius: 28px;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.25);
+            padding: 18px;
+            position: relative;
+            overflow: hidden;
             animation: fade-in-up 0.8s ease-out backwards;
             animation-delay: 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 500px;
+            touch-action: manipulation;
         }
 
         @keyframes fade-in-up {
@@ -132,26 +126,133 @@
         #videoElement {
             width: 100%;
             height: 100%;
-            border-radius: 16px;
+            border-radius: 20px;
             background: #000;
             display: block;
             object-fit: cover;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .info-section {
+        .overlay {
+            position: absolute;
+            inset: 18px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 30px;
+            pointer-events: none;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .overlay-card {
+            background: rgba(15, 23, 42, 0.62);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-radius: 22px;
+            padding: 26px 30px;
+            max-width: 520px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.28);
+        }
+
+        .overlay-card h2 {
+            font-size: 1.7rem;
+            margin-bottom: 12px;
+            color: #f8fafc;
+        }
+
+        .overlay-card p {
+            color: #cbd5e1;
+            line-height: 1.7;
+            font-size: 1rem;
+        }
+
+        .tap-hint {
+            margin-top: 16px;
+            font-size: 0.95rem;
+            color: #a5b4fc;
+            font-weight: 500;
+        }
+
+        .status-pill {
+            position: absolute;
+            top: 32px;
+            right: 32px;
+            z-index: 25;
+            padding: 12px 18px;
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.72);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.95rem;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: all 0.3s ease;
+        }
+
+        .status-pill.active {
+            color: #34d399;
+            border-color: rgba(16, 185, 129, 0.25);
+            background: rgba(16, 185, 129, 0.1);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
+        }
+
+        .hold-indicator {
+            position: absolute;
+            bottom: 34px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 25;
+            background: rgba(15, 23, 42, 0.78);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 999px;
+            padding: 12px 18px;
+            color: #f8fafc;
+            font-size: 0.95rem;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+        }
+
+        .hold-indicator.show {
+            opacity: 1;
+        }
+
+        .fullscreen-hint {
+            position: absolute;
+            bottom: 84px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 25;
+            background: rgba(15, 23, 42, 0.72);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 999px;
+            padding: 10px 16px;
+            color: #cbd5e1;
+            font-size: 0.9rem;
+            font-weight: 500;
+            pointer-events: none;
+        }
+
+        .side-panel {
             display: flex;
             flex-direction: column;
-            gap: 24px;
-            animation: fade-in-up 0.8s ease-out backwards;
-            animation-delay: 0.4s;
+            gap: 20px;
         }
 
         .card {
-            padding: 28px;
-            display: flex;
-            flex-direction: column;
+            background: var(--bg-blur);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            transition: background 0.3s ease, transform 0.3s ease;
         }
 
         .card:hover {
@@ -160,195 +261,41 @@
         }
 
         .card h2 {
-            font-size: 1.5rem;
+            font-size: 1.35rem;
             font-weight: 600;
-            margin-bottom: 24px;
+            margin-bottom: 18px;
+            color: #f1f5f9;
             display: flex;
             align-items: center;
             gap: 12px;
-            color: #f1f5f9;
         }
 
         .card h2::before {
             content: '';
             display: block;
             width: 6px;
-            height: 24px;
+            height: 22px;
             background: linear-gradient(to bottom, #818cf8, #38bdf8);
             border-radius: 4px;
         }
 
-        .controls {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        button {
-            padding: 16px 20px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            border: none;
-            border-radius: 16px;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            letter-spacing: 0.5px;
-        }
-
-        button::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 150%;
-            height: 150%;
-            background: rgba(255, 255, 255, 0.15);
-            transform: translate(-50%, -50%) scale(0);
-            border-radius: 50%;
-            transition: transform 0.5s ease-out;
-        }
-
-        button:active::after {
-            transform: translate(-50%, -50%) scale(1);
-            transition: 0s;
-        }
-
-        #startBtn {
-            background: var(--success);
-            color: white;
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
-        }
-
-        #startBtn:hover:not(:disabled) {
-            background: var(--success-hover);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.35);
-        }
-
-        #stopBtn {
-            background: var(--danger);
-            color: white;
-            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);
-        }
-
-        #stopBtn:hover:not(:disabled) {
-            background: var(--danger-hover);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.35);
-        }
-
-        button:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            transform: none !important;
-            box-shadow: none !important;
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--text-muted);
-        }
-
-        .status {
-            padding: 16px;
-            border-radius: 16px;
-            text-align: center;
-            font-size: 1.1rem;
-            font-weight: 600;
-            transition: all 0.4s ease;
-            position: relative;
-            overflow: hidden;
-            background: rgba(15, 23, 42, 0.5);
-        }
-
-        .status.active {
-            background: rgba(16, 185, 129, 0.1);
-            color: #34d399;
-            border: 1px solid rgba(16, 185, 129, 0.2);
-            text-shadow: 0 0 15px rgba(52, 211, 153, 0.4);
-        }
-
-        .status.active::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            box-shadow: inset 0 0 20px rgba(16, 185, 129, 0.15);
-            animation: pulse-border 2.5s infinite;
-        }
-
-        @keyframes pulse-border {
-            0% {
-                opacity: 0.4;
-            }
-
-            50% {
-                opacity: 1;
-            }
-
-            100% {
-                opacity: 0.4;
-            }
-        }
-
-        .status.inactive {
-            color: var(--text-muted);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .shortcuts {
-            font-size: 0.85em;
-            color: var(--text-muted);
-            margin-top: 24px;
-            text-align: center;
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            opacity: 0.8;
-        }
-
-        .shortcuts kbd {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-family: monospace;
-            font-weight: 500;
-            color: #fff;
-            border-bottom: 2px solid rgba(0, 0, 0, 0.3);
-            letter-spacing: 1px;
-        }
-
-        #currentMessage {
-            font-size: 1.3rem;
-            font-weight: 500;
-            padding: 24px;
+        .instruction-box {
+            min-height: 130px;
             background: rgba(15, 23, 42, 0.4);
             border-radius: 16px;
-            text-align: center;
-            min-height: 90px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid rgba(255, 255, 255, 0.03);
-            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.2);
-            line-height: 1.5;
+            padding: 18px;
             color: #e2e8f0;
+            line-height: 1.6;
+            font-size: 1.02rem;
+            border: 1px solid rgba(255, 255, 255, 0.04);
         }
 
         #detectionsList {
-            max-height: 320px;
+            max-height: 420px;
             overflow-y: auto;
-            flex-grow: 1;
-            padding-right: 8px;
+            padding-right: 6px;
         }
 
-        /* Scrollbar styling */
         #detectionsList::-webkit-scrollbar {
             width: 6px;
         }
@@ -359,21 +306,16 @@
         }
 
         #detectionsList::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.12);
             border-radius: 10px;
-        }
-
-        #detectionsList::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.2);
         }
 
         .detection-item {
             background: rgba(255, 255, 255, 0.05);
-            padding: 16px;
+            padding: 14px 16px;
             margin-bottom: 12px;
             border-radius: 14px;
             border-left: 4px solid #818cf8;
-            animation: slide-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             transition: transform 0.2s ease, background 0.2s ease;
         }
 
@@ -382,105 +324,97 @@
             transform: translateX(4px);
         }
 
-        @keyframes slide-in {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
         .detection-item strong {
             color: #a5b4fc;
-            font-size: 1.15em;
-            letter-spacing: 0.5px;
+            font-size: 1.05rem;
         }
 
         .no-detections {
             text-align: center;
-            padding: 50px 20px;
+            padding: 35px 16px;
             color: var(--text-muted);
             font-style: italic;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
         }
 
-        .no-detections svg {
-            opacity: 0.3;
-            width: 48px;
-            height: 48px;
+        @media (max-width: 1000px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .video-wrapper {
+                height: 68vh;
+            }
         }
 
         @media (max-width: 900px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-
-            .controls {
-                grid-template-columns: 1fr;
-            }
-
-            .video-section {
-                min-height: 300px;
-            }
-
             h1 {
-                font-size: 2.2rem;
+                font-size: 2.3rem;
+            }
+
+            .video-wrapper {
+                padding: 12px;
+                border-radius: 22px;
+            }
+
+            .overlay {
+                inset: 12px;
+            }
+
+            .status-pill {
+                top: 20px;
+                right: 20px;
+            }
+
+            .fullscreen-hint {
+                bottom: 78px;
+                font-size: 0.82rem;
             }
         }
     </style>
 </head>
 
 <body>
-    <div class="container">
+    <div class="app-shell">
         <header>
             <h1>Sensable</h1>
-            <p class="subtitle">AI-Powered Obstacle Detection for Visually Impaired Users</p>
+            <p class="subtitle">Tap to start • Hold 3 seconds to stop • Double tap for fullscreen</p>
         </header>
 
-        <div class="main-content">
-            <div class="video-section glass-panel">
+        <div class="main-layout">
+            <div class="video-wrapper" id="interactionArea">
                 <video id="videoElement" autoplay playsinline></video>
+
+                <div class="overlay" id="startOverlay">
+                    <div class="overlay-card">
+                        <h2>Ready to Navigate</h2>
+                        <p>
+                            Tap anywhere on the screen to start navigation.
+                            Hold anywhere for 3 seconds to stop.
+                            Double tap the screen to enter or exit fullscreen.
+                        </p>
+                        <div class="tap-hint">Tap anywhere to begin</div>
+                    </div>
+                </div>
+
+                <div class="status-pill" id="statusPill">System Ready</div>
+                <div class="fullscreen-hint">Double tap for fullscreen</div>
+                <div class="hold-indicator" id="holdIndicator">Hold to stop... 3</div>
             </div>
 
-            <div class="info-section">
-                <div class="card glass-panel">
-                    <h2>Controls</h2>
-                    <div class="controls">
-                        <button id="startBtn">Start Navigation</button>
-                        <button id="stopBtn" disabled>Stop</button>
-                        <button id="fullscreenBtn" disabled>Full Screen Video</button>
-                    </div>
-                    <div id="status" class="status inactive">System Ready</div>
-                    <div class="shortcuts">
-                        <p><kbd>Space</kbd> Start/Stop &nbsp;&nbsp;&bull;&nbsp;&nbsp; <kbd>M</kbd> Mute Audio</p>
+            <div class="side-panel">
+                <div class="card">
+                    <h2>Instructions</h2>
+                    <div class="instruction-box" id="instructionBox">
+                        Waiting to start navigation.
                     </div>
                 </div>
 
-                <div class="card glass-panel">
-                    <h2>Current Guidance</h2>
-                    <div id="currentMessage">Waiting to start...</div>
-                </div>
-
-                <div class="card glass-panel">
+                <div class="card">
                     <h2>Detected Objects</h2>
                     <div id="detectionsList">
-                        <div class="no-detections">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                            No objects detected yet
-                        </div>
+                        <div class="no-detections">No objects detected yet.</div>
                     </div>
                 </div>
             </div>
@@ -489,12 +423,12 @@
 
     <script>
         const video = document.getElementById('videoElement');
-        const startBtn = document.getElementById('startBtn');
-        const stopBtn = document.getElementById('stopBtn');
-        const fullscreenBtn = document.getElementById('fullscreenBtn');
-        const statusDiv = document.getElementById('status');
-        const messageDiv = document.getElementById('currentMessage');
+        const interactionArea = document.getElementById('interactionArea');
+        const startOverlay = document.getElementById('startOverlay');
+        const statusPill = document.getElementById('statusPill');
+        const holdIndicator = document.getElementById('holdIndicator');
         const detectionsList = document.getElementById('detectionsList');
+        const instructionBox = document.getElementById('instructionBox');
 
         let stream = null;
         let detectionInterval = null;
@@ -503,40 +437,40 @@
         let currentAudio = null;
         let isAudioPlaying = false;
 
+        let holdTimeout = null;
+        let holdCountdownInterval = null;
+        let holdSecondsLeft = 3;
+        let holdTriggered = false;
+
+        let lastTapTime = 0;
+        const DOUBLE_TAP_DELAY = 300;
+
         function isVideoFullscreen() {
-            return document.fullscreenElement === video;
+            return document.fullscreenElement === video || document.fullscreenElement === interactionArea;
         }
 
         async function toggleVideoFullscreen() {
             try {
                 if (!document.fullscreenElement) {
-                    // Fullscreen needs a user gesture; this runs from a button click / key press.
-                    if (video.requestFullscreen) {
-                        await video.requestFullscreen();
-                    } else if (video.webkitRequestFullscreen) {
-                        // Safari fallback
-                        await video.webkitRequestFullscreen();
+                    if (interactionArea.requestFullscreen) {
+                        await interactionArea.requestFullscreen();
+                    } else if (interactionArea.webkitRequestFullscreen) {
+                        await interactionArea.webkitRequestFullscreen();
+                    } else if (interactionArea.msRequestFullscreen) {
+                        await interactionArea.msRequestFullscreen();
                     }
                 } else {
                     if (document.exitFullscreen) {
                         await document.exitFullscreen();
+                    } else if (document.webkitExitFullscreen) {
+                        await document.webkitExitFullscreen();
                     }
                 }
-            } catch (e) {
-                console.log('Fullscreen error:', e);
+            } catch (error) {
+                console.log('Fullscreen error:', error);
             }
         }
 
-        // Keep button label in sync with the browser fullscreen state.
-        document.addEventListener('fullscreenchange', () => {
-            if (isVideoFullscreen()) {
-                fullscreenBtn.textContent = 'Exit Full Screen';
-            } else {
-                fullscreenBtn.textContent = 'Full Screen Video';
-            }
-        });
-
-        // Initialize camera
         async function startCamera() {
             try {
                 stream = await navigator.mediaDevices.getUserMedia({
@@ -552,7 +486,6 @@
             }
         }
 
-        // Stop camera
         function stopCamera() {
             if (stream) {
                 stream.getTracks().forEach(track => track.stop());
@@ -561,7 +494,6 @@
             }
         }
 
-        // Capture frame from video
         function captureFrame() {
             const canvas = document.createElement('canvas');
             canvas.width = video.videoWidth;
@@ -571,7 +503,28 @@
             return canvas.toDataURL('image/jpeg', 0.8);
         }
 
-        // Send frame for detection
+        function updateDetections(detections) {
+            if (!detections || detections.length === 0) {
+                detectionsList.innerHTML = `<div class="no-detections">No objects detected.</div>`;
+                return;
+            }
+
+            detectionsList.innerHTML = detections.map(det => `
+                <div class="detection-item">
+                    <strong>${det.object}</strong><br>
+                    Position: ${det.position}<br>
+                    Confidence: ${(det.confidence * 100).toFixed(0)}%<br>
+                    Distance: ${det.distance}
+                </div>
+            `).join('');
+        }
+
+        function updateInstructions(message) {
+            instructionBox.textContent = message && message.trim()
+                ? message
+                : 'Scanning surroundings...';
+        }
+
         async function detectObjects() {
             if (!isRunning) return;
 
@@ -590,54 +543,24 @@
 
                 if (data.error) {
                     console.error('Detection error:', data.error);
+                    updateInstructions('Detection error. Please try again.');
                     return;
                 }
 
-                // Update UI
                 updateDetections(data.detections);
-                updateMessage(data.message);
+                updateInstructions(data.message);
 
-                // Play audio guidance
                 if (data.audio_file && !isMuted && !isAudioPlaying) {
                     playAudio(data.audio_file);
                 }
 
             } catch (error) {
                 console.error('Detection request error:', error);
+                updateInstructions('Connection error. Unable to process detection.');
             }
         }
 
-        // Update detections list
-        function updateDetections(detections) {
-            if (!detections || detections.length === 0) {
-                detectionsList.innerHTML = `
-                    <div class="no-detections">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                        No obstacles detected
-                    </div>
-                `;
-                return;
-            }
-
-            detectionsList.innerHTML = detections.map(det => `
-                <div class="detection-item">
-                    <strong>${det.object}</strong> - ${det.position}
-                    <br><small>Confidence: ${(det.confidence * 100).toFixed(0)}% &bull; ${det.distance}</small>
-                </div>
-            `).join('');
-        }
-
-        // Update current message
-        function updateMessage(message) {
-            messageDiv.textContent = message || 'Scanning...';
-        }
-
-        // Play audio
         function playAudio(filename) {
-            // Stop current audio if playing
             if (currentAudio) {
                 currentAudio.pause();
                 currentAudio = null;
@@ -646,12 +569,10 @@
             isAudioPlaying = true;
             currentAudio = new Audio(`/audio/${filename}`);
 
-            // Reset flag when audio ends
             currentAudio.onended = () => {
                 isAudioPlaying = false;
             };
 
-            // Handle errors
             currentAudio.onerror = () => {
                 isAudioPlaying = false;
                 console.log('Audio play error');
@@ -663,84 +584,148 @@
             });
         }
 
-        // Start navigation
         async function startNavigation() {
+            if (isRunning) return;
+
             const cameraStarted = await startCamera();
             if (!cameraStarted) return;
 
             isRunning = true;
-            startBtn.disabled = true;
-            stopBtn.disabled = false;
-            fullscreenBtn.disabled = false;
-            statusDiv.textContent = 'Navigation Active';
-            statusDiv.className = 'status active';
-
-            // Start detection loop (every 2 seconds for less frequent updates)
+            statusPill.textContent = 'Navigation Active';
+            statusPill.classList.add('active');
+            startOverlay.style.opacity = '0';
+            startOverlay.style.visibility = 'hidden';
+            updateInstructions('Navigation started. Scanning surroundings...');
+            detectObjects();
             detectionInterval = setInterval(detectObjects, 2000);
         }
 
-        // Stop navigation
         function stopNavigation() {
+            if (!isRunning) return;
+
             isRunning = false;
             clearInterval(detectionInterval);
             stopCamera();
 
-            startBtn.disabled = false;
-            stopBtn.disabled = true;
-            fullscreenBtn.disabled = true;
-            // If we're currently fullscreening the video, exit so the UI returns.
-            if (document.fullscreenElement && isVideoFullscreen() && document.exitFullscreen) {
-                document.exitFullscreen();
-            }
-            statusDiv.textContent = 'Navigation Stopped';
-            statusDiv.className = 'status inactive';
-            messageDiv.textContent = 'Stopped';
-            detectionsList.innerHTML = `
-                <div class="no-detections">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                    Navigation stopped
-                </div>
-            `;
+            statusPill.textContent = 'Navigation Stopped';
+            statusPill.classList.remove('active');
+            startOverlay.style.opacity = '1';
+            startOverlay.style.visibility = 'visible';
+            updateInstructions('Navigation stopped.');
+            detectionsList.innerHTML = `<div class="no-detections">No objects detected yet.</div>`;
 
             if (currentAudio) {
                 currentAudio.pause();
                 currentAudio = null;
             }
             isAudioPlaying = false;
+
+            hideHoldIndicator();
         }
 
-        // Event listeners
-        startBtn.addEventListener('click', startNavigation);
-        stopBtn.addEventListener('click', stopNavigation);
-        fullscreenBtn.addEventListener('click', toggleVideoFullscreen);
+        function showHoldIndicator() {
+            holdSecondsLeft = 3;
+            holdIndicator.textContent = `Hold to stop... ${holdSecondsLeft}`;
+            holdIndicator.classList.add('show');
 
-        // Keyboard shortcuts
+            clearInterval(holdCountdownInterval);
+            holdCountdownInterval = setInterval(() => {
+                holdSecondsLeft--;
+                if (holdSecondsLeft > 0) {
+                    holdIndicator.textContent = `Hold to stop... ${holdSecondsLeft}`;
+                }
+            }, 1000);
+        }
+
+        function hideHoldIndicator() {
+            holdIndicator.classList.remove('show');
+            clearTimeout(holdTimeout);
+            clearInterval(holdCountdownInterval);
+            holdTimeout = null;
+            holdCountdownInterval = null;
+            holdTriggered = false;
+        }
+
+        function beginHoldStop() {
+            if (!isRunning) return;
+
+            holdTriggered = false;
+            showHoldIndicator();
+
+            holdTimeout = setTimeout(() => {
+                holdTriggered = true;
+                stopNavigation();
+            }, 3000);
+        }
+
+        function cancelHoldStop() {
+            if (!isRunning) return;
+            if (holdTriggered) return;
+            hideHoldIndicator();
+        }
+
+        function handleSingleTap() {
+            if (!isRunning) {
+                startNavigation();
+            }
+        }
+
+        function handleTap(e) {
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTapTime;
+
+            if (tapLength < DOUBLE_TAP_DELAY && tapLength > 0) {
+                e.preventDefault();
+                toggleVideoFullscreen();
+                lastTapTime = 0;
+                return;
+            }
+
+            lastTapTime = currentTime;
+
+            setTimeout(() => {
+                if (lastTapTime === currentTime) {
+                    handleSingleTap();
+                }
+            }, DOUBLE_TAP_DELAY + 10);
+        }
+
+        interactionArea.addEventListener('click', handleTap);
+        interactionArea.addEventListener('touchend', handleTap, { passive: false });
+
+        interactionArea.addEventListener('dblclick', (e) => {
+            e.preventDefault();
+            toggleVideoFullscreen();
+        });
+
+        interactionArea.addEventListener('mousedown', () => {
+            if (isRunning) beginHoldStop();
+        });
+
+        interactionArea.addEventListener('mouseup', cancelHoldStop);
+        interactionArea.addEventListener('mouseleave', cancelHoldStop);
+
+        interactionArea.addEventListener('touchstart', () => {
+            if (isRunning) beginHoldStop();
+        }, { passive: true });
+
+        interactionArea.addEventListener('touchcancel', cancelHoldStop, { passive: true });
+
         document.addEventListener('keydown', (e) => {
             if (e.code === 'Space') {
                 e.preventDefault();
-                if (isRunning) {
-                    stopNavigation();
-                } else {
+                if (!isRunning) {
                     startNavigation();
                 }
             } else if (e.code === 'KeyM') {
                 isMuted = !isMuted;
-                alert(isMuted ? 'Audio muted' : 'Audio unmuted');
             } else if (e.code === 'KeyF') {
-                // Fullscreen shortcut (only meaningful while running)
-                if (isRunning) {
-                    e.preventDefault();
-                    toggleVideoFullscreen();
-                }
+                e.preventDefault();
+                toggleVideoFullscreen();
             }
         });
 
-        // Initial message
         console.log('Sensable loaded');
-        console.log('Press Space to start/stop navigation');
     </script>
 </body>
 
