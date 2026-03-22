@@ -225,6 +225,72 @@
             letter-spacing: 1px;
         }
 
+        /* 5-zone depth bar */
+        .depth-bar-wrap {
+            margin-top: 24px;
+        }
+        .depth-bar-label {
+            font-size: 1.1rem;
+            color: #94a3b8;
+            font-weight: 600;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        .depth-bar {
+            display: flex;
+            gap: 6px;
+            height: 28px;
+            border-radius: 14px;
+            overflow: hidden;
+        }
+        .depth-zone {
+            flex: 1;
+            border-radius: 8px;
+            transition: background 0.4s ease, transform 0.3s ease;
+            background: rgba(255,255,255,0.08);
+        }
+        .depth-zone.danger  { background: #ef4444; }
+        .depth-zone.caution { background: #f59e0b; }
+        .depth-zone.safe    { background: #10b981; }
+        .depth-zone-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 6px;
+        }
+
+        /* Confidence slider */
+        .slider-wrap {
+            margin-top: 24px;
+        }
+        .slider-label {
+            font-size: 1.1rem;
+            color: #94a3b8;
+            font-weight: 600;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+        input[type=range] {
+            width: 100%;
+            accent-color: #818cf8;
+            height: 6px;
+            cursor: pointer;
+        }
+
+        /* Haptic flash */
+        @keyframes danger-flash {
+            0%,100% { box-shadow: 0 0 50px rgba(16,185,129,0.4); }
+            50%      { box-shadow: 0 0 80px rgba(239,68,68,0.85); }
+        }
+        .video-section.danger-alert {
+            animation: danger-flash 0.4s ease 2;
+            border-color: #ef4444;
+        }
+
     </style>
 </head>
 <body>
@@ -256,6 +322,31 @@
                 <div class="instruction-text" id="instructionBox" aria-live="polite">
                     Awaiting start...
                 </div>
+
+                <!-- 5-zone depth bar -->
+                <div class="depth-bar-wrap">
+                    <div class="depth-bar-label">Depth Zones</div>
+                    <div class="depth-bar">
+                        <div class="depth-zone" id="zone0"></div>
+                        <div class="depth-zone" id="zone1"></div>
+                        <div class="depth-zone" id="zone2"></div>
+                        <div class="depth-zone" id="zone3"></div>
+                        <div class="depth-zone" id="zone4"></div>
+                    </div>
+                    <div class="depth-zone-labels">
+                        <span>Far L</span><span>Left</span><span>Center</span><span>Right</span><span>Far R</span>
+                    </div>
+                </div>
+
+                <!-- Confidence slider -->
+                <div class="slider-wrap">
+                    <div class="slider-label">
+                        <span>Confidence Threshold</span>
+                        <span id="confVal">0.45</span>
+                    </div>
+                    <input type="range" id="confSlider" min="0.2" max="0.8" step="0.05" value="0.45"
+                           oninput="document.getElementById('confVal').textContent=parseFloat(this.value).toFixed(2)">
+                </div>
             </div>
 
             <div class="card">
@@ -268,19 +359,67 @@
     </div>
 
     <script>
-        const video = document.getElementById('videoElement');
+        const video           = document.getElementById('videoElement');
         const interactionArea = document.getElementById('interactionArea');
-        const startOverlay = document.getElementById('startOverlay');
-        const statusBadge = document.getElementById('statusBadge');
-        const detectionsList = document.getElementById('detectionsList');
-        const instructionBox = document.getElementById('instructionBox');
+        const startOverlay    = document.getElementById('startOverlay');
+        const statusBadge     = document.getElementById('statusBadge');
+        const detectionsList  = document.getElementById('detectionsList');
+        const instructionBox  = document.getElementById('instructionBox');
+        const confSlider      = document.getElementById('confSlider');
+        const zones           = [0,1,2,3,4].map(i => document.getElementById(`zone${i}`));
 
         let stream = null;
         let detectionInterval = null;
         let isRunning = false;
-        let currentAudio = null;
         let holdTimeout = null;
         let lastTapTime = 0;
+
+        // ── Web Speech API TTS ────────────────────────────────────────────────────
+        // Pick the best English voice once voices are loaded
+        let _voice = null;
+        function _loadVoice() {
+            const voices = speechSynthesis.getVoices();
+            // Prefer a natural-sounding English voice
+            _voice = voices.find(v => v.lang.startsWith('en') && v.localService) ||
+                     voices.find(v => v.lang.startsWith('en')) ||
+                     null;
+        }
+        speechSynthesis.onvoiceschanged = _loadVoice;
+        _loadVoice();
+
+        function speak(text) {
+            if (!text || !('speechSynthesis' in window)) return;
+            speechSynthesis.cancel();                    // drop any queued/current speech
+            const utt = new SpeechSynthesisUtterance(text);
+            utt.voice  = _voice;
+            utt.rate   = 1.25;   // slightly faster — urgent navigation context
+            utt.volume = 1.0;
+            speechSynthesis.speak(utt);
+        }
+
+        // Haptic vibration helper (mobile / supported browsers)
+        function vibrate(pattern) {
+            if ('vibrate' in navigator) navigator.vibrate(pattern);
+        }
+
+        function flashDanger() {
+            interactionArea.classList.add('danger-alert');
+            setTimeout(() => interactionArea.classList.remove('danger-alert'), 900);
+        }
+
+        // Update 5-zone depth bar
+        const WALL_THRESH    = 600;
+        const CAUTION_THRESH = 420;
+        function updateDepthBar(zones_data) {
+            if (!zones_data || zones_data.length !== 5) return;
+            zones.forEach((el, i) => {
+                const v = zones_data[i];
+                el.classList.remove('danger','caution','safe');
+                if (v > WALL_THRESH)         el.classList.add('danger');
+                else if (v > CAUTION_THRESH) el.classList.add('caution');
+                else                         el.classList.add('safe');
+            });
+        }
 
         async function startCamera() {
             try {
@@ -305,60 +444,68 @@
         }
 
         function captureFrame() {
-            // FIX: Ensure video has fully loaded dimensions to prevent OpenCV imdecode crash on server
             if (!video.videoWidth || !video.videoHeight || video.videoWidth === 0) return null;
-            
             const canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth;
+            canvas.width  = video.videoWidth;
             canvas.height = video.videoHeight;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(video, 0, 0);
-            return canvas.toDataURL('image/jpeg', 0.8);
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            return canvas.toDataURL('image/jpeg', 0.82);
         }
 
         async function detect() {
             if (!isRunning) return;
             const imageData = captureFrame();
-            
-            // Wait for next cycle if frame isn't ready
             if (!imageData) return;
+
+            const conf = parseFloat(confSlider.value);
 
             try {
                 const res = await fetch('/detect', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ image: imageData })
+                    body: JSON.stringify({ image: imageData, conf: conf })
                 });
                 const data = await res.json();
-                
                 if (data.error) return;
 
-                instructionBox.textContent = data.message || "Path clear.";
-                
-                if(data.audio_file) {
-                    if(currentAudio) {
-                        currentAudio.pause();
-                    }
-                    currentAudio = new Audio(`/audio/${data.audio_file}`);
-                    currentAudio.play().catch(e => console.log(e));
+                instructionBox.textContent = data.message || 'Path clear.';
+
+                // Update depth bar
+                updateDepthBar(data.zone_proximities);
+
+                // Haptic feedback
+                const isWall = data.wall_warning;
+                const hasVeryClose = data.detections && data.detections.some(d => d.distance === 'very close' && d.position === 'center');
+                if (isWall) {
+                    vibrate([200, 80, 200]);
+                    flashDanger();
+                } else if (hasVeryClose) {
+                    vibrate(150);
                 }
 
+                // Speak via browser Web Speech API (speak field is only set when cooldown passed)
+                if (data.speak) speak(data.speak);
+
+                // Detection list
                 if (!data.detections || data.detections.length === 0) {
-                    detectionsList.innerHTML = `<div style="font-size: clamp(1.6rem, 4vw, 2rem); color: #94a3b8; font-style: italic; font-weight: 500; padding: 20px 0;">No objects detected.</div>`;
+                    detectionsList.innerHTML = `<div style="font-size:clamp(1.6rem,4vw,2rem);color:#94a3b8;font-style:italic;font-weight:500;padding:20px 0">No objects detected.</div>`;
                 } else {
-                    detectionsList.innerHTML = data.detections.map(d => `
-                        <div class="detection-item">
+                    detectionsList.innerHTML = data.detections.map(d => {
+                        const distColor = d.distance === 'very close' ? '#ef4444' : d.distance === 'close' ? '#f59e0b' : '#10b981';
+                        return `<div class="detection-item" style="border-left-color:${distColor}">
                             <strong>${d.object.toUpperCase()}</strong>
                             POSITION: ${d.position.toUpperCase()}<br>
-                            DISTANCE: ${d.distance.toUpperCase()}
-                        </div>
-                    `).join('');
+                            DISTANCE: <span style="color:${distColor};font-weight:800">${d.distance.toUpperCase()}</span>
+                            ${d.track_id !== null ? `<br><span style="color:#64748b;font-size:0.85em">ID #${d.track_id}</span>` : ''}
+                        </div>`;
+                    }).join('');
                 }
 
             } catch (e) {
                 console.log(e);
             }
         }
+
 
         async function start() {
             if (isRunning) return;
@@ -373,9 +520,9 @@
                 
                 instructionBox.textContent = "Scanning surroundings...";
                 
-                // Allow some time for the camera feed to adjust its auto-exposure before processing frames
-                setTimeout(() => detect(), 1500); 
-                detectionInterval = setInterval(detect, 2500);
+                // Allow camera to warm up (auto-exposure settle)
+                setTimeout(() => detect(), 1500);
+                detectionInterval = setInterval(detect, 1800);  // GPU can handle faster cycles
             }
         }
 

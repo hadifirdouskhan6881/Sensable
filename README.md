@@ -1,47 +1,48 @@
 # Sensable: Visual Navigation Assistant
 
-Sensable is an intelligent navigation assistant designed to help visually impaired individuals navigate their surroundings safely. By combining real-time object detection with advanced depth estimation, the application identifies obstacles and provides immediate audio feedback to guide the user.
-
-## 🌟 Key Features
-
-- **Real-time Object Detection:** Uses **YOLOv8** to identify common objects like chairs, people, doors, and tables.
-- **Smart Obstacle Detection:** Leverages **MiDaS (Monocular Depth Estimation)** to detect generic barriers like walls and solid objects, even if they aren't recognized by the object detection model.
-- **Audio Guidance:** Converts detection results into clear, concise voice instructions using **Google Text-to-Speech (gTTS)**.
-- **Prioritized Feedback:** Intelligently filters audio alerts to focus on immediate threats in the user's path, reducing "audio spam."
-- **Low Hardware Barrier:** Runs on a standard laptop (GPU recommended) and can be accessed via a mobile browser over a local network.
+Sensable is an intelligent navigation assistant designed to help visually impaired individuals navigate their surroundings safely. Using real-time object detection combined with monocular depth estimation, it identifies obstacles and provides immediate audio + haptic guidance.
 
 ---
 
-## 🚀 Getting Started (Beginner Friendly)
+## 🌟 Key Features
 
-Follow these steps to get the project running on your local machine.
+- **Real-time Object Detection** — [YOLOv11s](https://docs.ultralytics.com/) with ByteTrack object tracking (no repeat alerts for the same object)
+- **Monocular Depth Estimation** — Intel MiDaS DPT_Hybrid detects walls and solid obstacles that YOLO might miss
+- **Offline Audio Guidance** — Instant, zero-latency voice instructions via `pyttsx3` (no internet required)
+- **GPU Accelerated** — Full FP16 (half-precision) inference on CUDA GPUs; falls back to CPU automatically
+- **Parallel Processing** — YOLO and MiDaS run simultaneously for lower latency
+- **5-Zone Depth Map** — Far-Left / Left / Center / Right / Far-Right coverage for precise directional guidance
+- **Haptic Feedback** — Phone vibration on wall warnings and close obstacles (mobile browsers)
+- **Smart Priority Queue** — `Stop` → `Very Close` → `Close` → `Path Clear` — no audio spam
+- **CLAHE Low-light Enhancement** — Works better in dim conditions
+- **Live Confidence Slider** — Tune detection sensitivity without restarting
+
+---
+
+## 🚀 Getting Started
 
 ### 1. Prerequisites
 
-Make sure you have the following things installed:
-- **Python (3.8 or higher):** [Download Python](https://www.python.org/downloads/)
-- **Git:** [Download Git](https://git-scm.com/downloads)
+- **Python 3.10+** — [Download Python](https://www.python.org/downloads/)
+- **Git** — [Download Git](https://git-scm.com/downloads)
+- **NVIDIA GPU** (optional but strongly recommended) — RTX 30/40 series for full performance
 
 ### 2. Clone the Repository
-
-Open your terminal (Command Prompt, PowerShell, or Terminal) and run:
 
 ```bash
 git clone https://github.com/hadifirdouskhan6881/Sensable.git
 cd Sensable
 ```
 
-### 3. Create a Virtual Environment (Recommended)
+### 3. Create a Virtual Environment
 
-This keeps the project's libraries organized and separate from your system Python.
-
-**On Windows:**
-```bash
+**Windows:**
+```powershell
 python -m venv venv
 venv\Scripts\activate
 ```
 
-**On macOS/Linux:**
+**macOS / Linux:**
 ```bash
 python3 -m venv venv
 source venv/bin/activate
@@ -49,68 +50,87 @@ source venv/bin/activate
 
 ### 4. Install Dependencies
 
-Install all the necessary AI models and web libraries with one command:
-
 ```bash
-pip intall -r requirements.txt
-
-#or
-
-pip install flask flask-cors ultralytics gtts opencv-python numpy torch torchvision timm
+pip install -r requirements.txt
 ```
 
-### 5. (Optional) Setup SSL for Camera Access
+> **GPU Users (NVIDIA):** Install the CUDA-enabled PyTorch for maximum performance:
+> ```bash
+> pip install --force-reinstall torch torchvision --index-url https://download.pytorch.org/whl/cu124
+> ```
+> Replace `cu124` with your CUDA version (check with `nvidia-smi`).
 
-Browsers require **HTTPS** to allow camera access on devices other than `localhost`. To enable this on your local network:
+### 5. Generate SSL Certificates (Required for Phone Camera Access)
 
-1. Run the certificate generator (if you have one) or generate them manually:
-   ```bash
-   python generate_cert.py
-   ```
-   or
-   
-   ```bash
-   openssl req -x509 -newkey rsa:4096 -nodes -out cert.pem -keyout key.pem -days 365
-   ```
-2. The app will automatically detect `cert.pem` and `key.pem` and switch to HTTPS mode.
+Browsers only allow camera access over HTTPS when not on `localhost`. Run once to generate a self-signed cert:
+
+```bash
+python generate_cert.py
+```
+
+The app auto-detects `cert.pem` / `key.pem` and enables HTTPS.
 
 ---
 
 ## 🏃 Running the App
 
-1. **Start the server:**
-   ```bash
-   python app.py
-   ```
-   *Note: On the first run, the app will download the YOLOv8 (`yolov8s.pt`) and MiDaS models. This might take a few minutes depending on your internet speed.*
+```bash
+python app.py
+```
 
-2. **Access the interface:**
-   - Look at the terminal output for the address (usually `https://127.0.0.1:5000`).
-   - Open that link in your browser.
-   - If you are on the same Wi-Fi, you can open the **Network IP** (e.g., `https://192.168.1.X:5000`) on your smartphone.
+> **First run:** The app will automatically download `yolo11s.pt` (~22MB) and the MiDaS DPT_Hybrid weights (~400MB). This takes a few minutes once.
 
-3. **Grant camera permissions** when prompted, and you're ready to go!
+**Access the app:**
+- Local browser: `https://127.0.0.1:5000`
+- From your phone (same Wi-Fi): `https://<your-PC-IP>:5000`
+  - Accept the self-signed certificate warning in your browser
+  - Go to **App** from the landing page, tap to start
 
 ---
 
 ## 🛠 Tech Stack
 
-- **Backend:** Flask (Python)
-- **Computer Vision:** Ultralytics YOLOv8, Intel MiDaS
-- **Deep Learning:** PyTorch
-- **Audio:** Google Text-to-Speech (gTTS)
-- **Frontend:** HTML5, CSS3, JavaScript (Webcam streaming)
+| Component | Technology |
+|---|---|
+| Backend | Flask + Flask-CORS |
+| Object Detection | Ultralytics YOLOv11s + ByteTrack |
+| Depth Estimation | Intel MiDaS DPT_Hybrid |
+| Deep Learning | PyTorch (CUDA 12.4) |
+| Audio TTS | pyttsx3 (offline) |
+| Image Processing | OpenCV + CLAHE |
+| Frontend | HTML5 / CSS3 / Vanilla JS |
 
 ---
 
 ## ⚠️ Troubleshooting
 
-- **"Camera not found"**: Ensure you are using `https://` if accessing from a phone.
-- **Slow Performance**: The app performs best with a dedicated GPU (e.g., RTX 30/40 series). If running on a CPU, expect a slight delay in audio feedback.
-- **Model Download Errors**: Ensure you have a stable internet connection for the first startup.
+| Problem | Fix |
+|---|---|
+| Camera not accessible from phone | Make sure you're using `https://` and accepted the cert warning |
+| `CUDA: False` in logs | Run the `pip install --force-reinstall torch ...` GPU command in step 4 |
+| Slow / laggy on CPU | Expected — GPU strongly recommended. Lower confidence slider helps |
+| First run takes forever | MiDaS DPT_Hybrid is ~400MB, download only happens once |
+| pyttsx3 no audio | On Linux, install `espeak`: `sudo apt install espeak` |
+| Wall warnings too sensitive | Increase `WALL_THRESHOLD` on line ~228 of `app.py` (default: 600) |
 
+---
 
-## Pulling and Pushing to and from Github
+## 📁 Project Structure
 
-## Whenever opening the code, always pull from source control
-## Whenever editing code and you want to post to Github, save > source control > commit with message about what you changed (and where) > commit > sync changes
+```
+Sensable/
+├── app.py                # Main Flask server + AI pipeline
+├── generate_cert.py      # One-time SSL cert generator
+├── requirements.txt      # Python dependencies
+├── templates/
+│   ├── landing.html      # Landing / intro page
+│   └── index.html        # Main app interface
+└── audio_cache/          # Auto-generated TTS audio files (gitignored)
+```
+
+---
+
+## 🔄 Git Workflow
+
+- **Before coding:** Pull latest changes in VS Code Source Control (`↓ Pull`)
+- **After changes:** Save → Source Control → write a commit message → Commit → Sync Changes (`↑`)

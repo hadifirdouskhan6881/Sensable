@@ -4,22 +4,43 @@ __pycache__/
 
 # Virtual environments
 venv/
+.venv/
 env/
 ENV/
 .env
 
-# Other
+# IDE / OS
 .DS_Store
+.vscode/
+.idea/
+Thumbs.db
 
-# SSL Certificates
+# SSL Certificates (generated locally, never commit)
 *.pem
+*.key
+*.crt
 
-# Audio Cache
+# Audio Cache (generated at runtime)
 audio_cache/
 
-# YOLO & PyTorch model weights
+# YOLO & PyTorch model weights (large binary files, auto-downloaded)
 *.pt
 *.pth
+*.onnx
 
-# PyTorch Hub cache (MiDaS model downloads)
+# PyTorch Hub cache (MiDaS / other model downloads)
 hub/
+~/.cache/torch/
+
+# Torch hub local cache directory
+torch_hub_cache/
+
+# Ultralytics runs/exports
+runs/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Logs
+*.log
