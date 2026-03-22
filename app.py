@@ -107,7 +107,7 @@ def detect_objects():
         height, width = img.shape[:2]
 
         # 1. YOLO detection
-        results = model(img, conf=0.5, verbose=False)
+        results = model(img, conf=0.5, verbose=False, device=device.type)
 
         detections = []
         detected_objects = {}
@@ -248,12 +248,11 @@ def generate_guidance_message(detections, wall_warning=False, left_prox=0, right
         else:
             return f"Caution. {obj} ahead."
 
-    very_close_sides = [d for d in side_dangers if d['distance'] == 'very close']
-    if very_close_sides:
-        primary_threat = very_close_sides[0]
+    if side_dangers:
+        primary_threat = side_dangers[0]
         obj = primary_threat['object']
         pos = primary_threat['position']
-        return f"{obj} close on your {pos}."
+        return f"{obj} on {pos}, straight path clear."
 
     return ""
 
