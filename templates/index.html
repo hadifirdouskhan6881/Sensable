@@ -426,6 +426,7 @@
         let stream = null;
         let detectionInterval = null;
         let isRunning = false;
+        let isStarting = false;
         let holdTimeout = null;
         let lastTapTime = 0;
 
@@ -499,13 +500,9 @@
             }
 
             try {
-                // Use 'ideal' constraints which Safari handles better than 'exact' or simple strings
+                // Standard facingMode for mobile
                 const constraints = {
-                    video: {
-                        facingMode: { ideal: 'environment' },
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 }
-                    },
+                    video: { facingMode: 'environment' },
                     audio: false
                 };
 
@@ -608,9 +605,12 @@
 
 
         async function start() {
-            if (isRunning) return;
+            if (isRunning || isStarting) return;
+            isStarting = true;
+            
             if (await startCamera()) {
                 isRunning = true;
+                isStarting = false;
                 interactionArea.classList.add('active');
                 statusBadge.classList.add('active');
                 statusBadge.textContent = 'ACTIVE';
@@ -623,6 +623,8 @@
                 // Allow camera to warm up (auto-exposure settle)
                 setTimeout(() => detect(), 1500);
                 detectionInterval = setInterval(detect, 1800);  // GPU can handle faster cycles
+            } else {
+                isStarting = false;
             }
         }
 
