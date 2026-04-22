@@ -431,26 +431,40 @@
         let lastTapTime = 0;
 
         // ── Web Speech API TTS ────────────────────────────────────────────────────
-        // Pick the best English voice once voices are loaded
         let _voice = null;
         function _loadVoice() {
             const voices = speechSynthesis.getVoices();
-            // Prefer a natural-sounding English voice
             _voice = voices.find(v => v.lang.startsWith('en') && v.localService) ||
-                voices.find(v => v.lang.startsWith('en')) ||
-                null;
+                     voices.find(v => v.lang.startsWith('en')) || null;
         }
-        speechSynthesis.onvoiceschanged = _loadVoice;
-        _loadVoice();
+        if ('speechSynthesis' in window) {
+            speechSynthesis.onvoiceschanged = _loadVoice;
+            _loadVoice();
+        }
 
         function speak(text) {
             if (!text || !('speechSynthesis' in window)) return;
-            speechSynthesis.cancel();                    // drop any queued/current speech
-            const utt = new SpeechSynthesisUtterance(text);
-            if (_voice) utt.voice = _voice;
-            utt.rate = 1.25;   // slightly faster — urgent navigation context
-            utt.volume = 1.0;
-            speechSynthesis.speak(utt);
+            
+            // iOS Chrome fix: API often gets stuck in a paused state, and cancel() can freeze it.
+            speechSynthesis.resume();
+            speechSynthesis.cancel();
+            
+            // Tiny timeout allows cancel() to flush before pushing new speech
+            setTimeout(() => {
+                const utt = new SpeechSynthesisUtterance(text);
+                if (!_voice) _loadVoice();
+                if (_voice) {
+                    utt.voice = _voice;
+                } else {
+                    utt.lang = 'en-US';
+                }
+                utt.rate = 1.25;
+                utt.volume = 1.0;
+                speechSynthesis.speak(utt);
+                
+                // Double resume forces playback on stubborn iOS WebKit versions
+                speechSynthesis.resume(); 
+            }, 50);
         }
 
         // Haptic vibration helper (mobile / supported browsers)
@@ -467,11 +481,10 @@
         function unlockAudio() {
             if (audioUnlocked) return;
             if ('speechSynthesis' in window) {
-                // To unlock Web Speech API on iOS, a speak call must be made
-                // synchronously during a user interaction (click/touchstart)
-                const utt = new SpeechSynthesisUtterance(' ');
-                utt.volume = 0;
+                // Chrome iOS requires completely synchronous utterance creation and playback to unlock
+                const utt = new SpeechSynthesisUtterance('');
                 speechSynthesis.speak(utt);
+                speechSynthesis.resume();
             }
             audioUnlocked = true;
         }
