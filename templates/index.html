@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sensable Navigation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --glass-bg: rgba(15, 23, 42, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --neon-blue: #3b82f6;
+            --neon-green: #10b981;
+            --neon-red: #ef4444;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; user-select: none; -webkit-tap-highlight-color: transparent;}
+        
+        body {
+            background-color: #050510;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: -1;
+            animation: float 30s infinite ease-in-out alternate;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .orb-1 { width: 45vw; height: 45vw; background: #e11d48; top: 0; left: 0; }
+        .orb-2 { width: 55vw; height: 55vw; background: #4f46e5; bottom: 0; right: 0; animation-delay: -7s; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(5vw, 15vh) scale(1.1); }
+        }
+
+        .header {
+            text-align: center;
+            padding: 24px 20px 10px;
+            z-index: 10;
+        }
+
+        .header h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 900;
+            background: linear-gradient(to right, #fff, #cbd5e1);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+            letter-spacing: -1px;
+        }
+
+        .main-container {
+            flex: 1;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            max-width: 1500px;
+            margin: 0 auto;
+            width: 100%;
+            z-index: 10;
+        }
+
+        @media(min-width: 1100px) {
+            .main-container { grid-template-columns: 1.5fr 1fr; }
+        }
+
+        .video-section {
+            position: relative;
+            background: var(--glass-bg);
+            border: 3px solid var(--glass-border);
+            border-radius: 36px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            transition: all 0.3s ease;
+        }
+
+        .video-section.active {
+            border-color: var(--neon-green);
+            box-shadow: 0 0 50px rgba(16, 185, 129, 0.4);
+        }
+
+        #videoElement {
+            width: 100%;
+            height: clamp(400px, 60vh, 700px);
+            object-fit: cover;
+            display: block;
+            background: #000;
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background: rgba(0,0,0,0.8);
+            border: 2px solid rgba(255,255,255,0.2);
+            padding: 14px 28px;
+            border-radius: 999px;
+            font-size: 1.4rem;
+            font-weight: 900;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+            z-index: 20;
+        }
+
+        .status-badge.active {
+            color: var(--neon-green);
+            border-color: var(--neon-green);
+            background: rgba(16, 185, 129, 0.2);
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+            padding: 40px;
+            transition: opacity 0.3s ease;
+            z-index: 15;
+            cursor: pointer;
+        }
+
+        .overlay h2 {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 900;
+            margin-bottom: 20px;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        .overlay p {
+            font-size: clamp(1.4rem, 4vw, 2.2rem);
+            color: #e2e8f0;
+            max-width: 800px;
+            line-height: 1.4;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .info-section {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .card {
+            background: var(--glass-bg);
+            border: 3px solid var(--glass-border);
+            border-radius: 36px;
+            padding: 36px;
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        }
+
+        .card h2 {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 900;
+            margin-bottom: 24px;
+            color: #f8fafc;
+            border-bottom: 3px solid rgba(255,255,255,0.1);
+            padding-bottom: 16px;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .card h2::before {
+            content: '';
+            display: block;
+            width: 8px;
+            height: clamp(24px, 5vw, 32px);
+            background: linear-gradient(to bottom, #818cf8, #38bdf8);
+            border-radius: 8px;
+        }
+
+        .instruction-text {
+            font-size: clamp(2.2rem, 5vw, 3rem);
+            font-weight: 800;
+            line-height: 1.3;
+            color: #ffffff;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .detection-item {
+            background: rgba(255,255,255,0.08);
+            border-radius: 24px;
+            padding: 24px 30px;
+            margin-bottom: 20px;
+            border-left: 8px solid var(--neon-blue);
+            font-size: clamp(1.4rem, 3vw, 1.8rem);
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+
+        .detection-item strong {
+            font-size: clamp(1.8rem, 4vw, 2.4rem);
+            color: #a5b4fc;
+            display: block;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        /* 5-zone depth bar */
+        .depth-bar-wrap {
+            margin-top: 24px;
+        }
+        .depth-bar-label {
+            font-size: 1.1rem;
+            color: #94a3b8;
+            font-weight: 600;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        .depth-bar {
+            display: flex;
+            gap: 6px;
+            height: 28px;
+            border-radius: 14px;
+            overflow: hidden;
+        }
+        .depth-zone {
+            flex: 1;
+            border-radius: 8px;
+            transition: background 0.4s ease, transform 0.3s ease;
+            background: rgba(255,255,255,0.08);
+        }
+        .depth-zone.danger  { background: #ef4444; }
+        .depth-zone.caution { background: #f59e0b; }
+        .depth-zone.safe    { background: #10b981; }
+        .depth-zone-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 6px;
+        }
+
+        /* Confidence slider */
+        .slider-wrap {
+            margin-top: 24px;
+        }
+        .slider-label {
+            font-size: 1.1rem;
+            color: #94a3b8;
+            font-weight: 600;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+        input[type=range] {
+            width: 100%;
+            accent-color: #818cf8;
+            height: 6px;
+            cursor: pointer;
+        }
+
+        /* Haptic flash */
+        @keyframes danger-flash {
+            0%,100% { box-shadow: 0 0 50px rgba(16,185,129,0.4); }
+            50%      { box-shadow: 0 0 80px rgba(239,68,68,0.85); }
+        }
+        .video-section.danger-alert {
+            animation: danger-flash 0.4s ease 2;
+            border-color: #ef4444;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <div class="header">
+        <h1>SENSABLE NAVIGATION</h1>
+    </div>
+
+    <div class="main-container">
+        <div class="video-section" id="interactionArea">
+            <video id="videoElement" autoplay playsinline muted></video>
+            
+            <div class="status-badge" id="statusBadge">STOPPED</div>
+            
+            <div class="overlay" id="startOverlay">
+                <h2>READY TO NAVIGATE</h2>
+                <p><b>TAP ANYWHERE TO START</b></p>
+                <div style="margin-top: 30px; font-size: clamp(1.2rem, 3vw, 1.6rem); color: #cbd5e1;">
+                    Hold to stop • Double tap for fullscreen
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <div class="card">
+                <h2>CURRENT INSTRUCTION</h2>
+                <div class="instruction-text" id="instructionBox" aria-live="polite">
+                    Awaiting start...
+                </div>
+
+                <!-- 5-zone depth bar -->
+                <div class="depth-bar-wrap">
+                    <div class="depth-bar-label">Depth Zones</div>
+                    <div class="depth-bar">
+                        <div class="depth-zone" id="zone0"></div>
+                        <div class="depth-zone" id="zone1"></div>
+                        <div class="depth-zone" id="zone2"></div>
+                        <div class="depth-zone" id="zone3"></div>
+                        <div class="depth-zone" id="zone4"></div>
+                    </div>
+                    <div class="depth-zone-labels">
+                        <span>Far L</span><span>Left</span><span>Center</span><span>Right</span><span>Far R</span>
+                    </div>
+                </div>
+
+                <!-- Confidence slider -->
+                <div class="slider-wrap">
+                    <div class="slider-label">
+                        <span>Confidence Threshold</span>
+                        <span id="confVal">0.45</span>
+                    </div>
+                    <input type="range" id="confSlider" min="0.2" max="0.8" step="0.05" value="0.45"
+                           oninput="document.getElementById('confVal').textContent=parseFloat(this.value).toFixed(2)">
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>DETECTED OBJECTS</h2>
+                <div id="detectionsList" style="overflow-y: auto; max-height: 500px; padding-right: 12px;" aria-live="polite">
+                    <div style="font-size: clamp(1.6rem, 4vw, 2rem); color: #94a3b8; font-style: italic; font-weight: 500; padding: 20px 0;">No objects detected yet.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const video           = document.getElementById('videoElement');
+        const interactionArea = document.getElementById('interactionArea');
+        const startOverlay    = document.getElementById('startOverlay');
+        const statusBadge     = document.getElementById('statusBadge');
+        const detectionsList  = document.getElementById('detectionsList');
+        const instructionBox  = document.getElementById('instructionBox');
+        const confSlider      = document.getElementById('confSlider');
+        const zones           = [0,1,2,3,4].map(i => document.getElementById(`zone${i}`));
+
+        let stream = null;
+        let detectionInterval = null;
+        let isRunning = false;
+        let holdTimeout = null;
+        let lastTapTime = 0;
+
+        // ── Web Speech API TTS ────────────────────────────────────────────────────
+        // Pick the best English voice once voices are loaded
+        let _voice = null;
+        function _loadVoice() {
+            const voices = speechSynthesis.getVoices();
+            // Prefer a natural-sounding English voice
+            _voice = voices.find(v => v.lang.startsWith('en') && v.localService) ||
+                     voices.find(v => v.lang.startsWith('en')) ||
+                     null;
+        }
+        speechSynthesis.onvoiceschanged = _loadVoice;
+        _loadVoice();
+
+        function speak(text) {
+            if (!text || !('speechSynthesis' in window)) return;
+            speechSynthesis.cancel();                    // drop any queued/current speech
+            const utt = new SpeechSynthesisUtterance(text);
+            if (_voice) utt.voice = _voice;
+            utt.rate   = 1.25;   // slightly faster — urgent navigation context
+            utt.volume = 1.0;
+            speechSynthesis.speak(utt);
+        }
+
+        // Haptic vibration helper (mobile / supported browsers)
+        function vibrate(pattern) {
+            if ('vibrate' in navigator) navigator.vibrate(pattern);
+        }
+
+        function flashDanger() {
+            interactionArea.classList.add('danger-alert');
+            setTimeout(() => interactionArea.classList.remove('danger-alert'), 900);
+        }
+
+        let audioUnlocked = false;
+        function unlockAudio() {
+            if (audioUnlocked) return;
+            if ('speechSynthesis' in window) {
+                // To unlock Web Speech API on iOS, a speak call must be made
+                // synchronously during a user interaction (click/touchstart)
+                const utt = new SpeechSynthesisUtterance(' ');
+                utt.volume = 0;
+                speechSynthesis.speak(utt);
+            }
+            audioUnlocked = true;
+        }
+
+        // Update 5-zone depth bar
+        const WALL_THRESH    = 600;
+        const CAUTION_THRESH = 420;
+        function updateDepthBar(zones_data) {
+            if (!zones_data || zones_data.length !== 5) return;
+            zones.forEach((el, i) => {
+                const v = zones_data[i];
+                el.classList.remove('danger','caution','safe');
+                if (v > WALL_THRESH)         el.classList.add('danger');
+                else if (v > CAUTION_THRESH) el.classList.add('caution');
+                else                         el.classList.add('safe');
+            });
+        }
+
+        async function startCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment' },
+                    audio: false
+                });
+                video.srcObject = stream;
+                return true;
+            } catch (err) {
+                alert('Camera access denied or unavailable.');
+                return false;
+            }
+        }
+
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(t => t.stop());
+                video.srcObject = null;
+                stream = null;
+            }
+        }
+
+        function captureFrame() {
+            if (!video.videoWidth || !video.videoHeight || video.videoWidth === 0) return null;
+            const canvas = document.createElement('canvas');
+            canvas.width  = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            return canvas.toDataURL('image/jpeg', 0.82);
+        }
+
+        async function detect() {
+            if (!isRunning) return;
+            const imageData = captureFrame();
+            if (!imageData) return;
+
+            const conf = parseFloat(confSlider.value);
+
+            try {
+                const res = await fetch('/detect', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: imageData, conf: conf })
+                });
+                const data = await res.json();
+                if (data.error) return;
+
+                instructionBox.textContent = data.message || 'Path clear.';
+
+                // Update depth bar
+                updateDepthBar(data.zone_proximities);
+
+                // Haptic feedback
+                const isWall = data.wall_warning;
+                const hasVeryClose = data.detections && data.detections.some(d => d.distance === 'very close' && d.position === 'center');
+                if (isWall) {
+                    vibrate([200, 80, 200]);
+                    flashDanger();
+                } else if (hasVeryClose) {
+                    vibrate(150);
+                }
+
+                // Speak via browser Web Speech API (speak field is only set when cooldown passed)
+                if (data.speak) speak(data.speak);
+
+                // Detection list
+                if (!data.detections || data.detections.length === 0) {
+                    detectionsList.innerHTML = `<div style="font-size:clamp(1.6rem,4vw,2rem);color:#94a3b8;font-style:italic;font-weight:500;padding:20px 0">No objects detected.</div>`;
+                } else {
+                    detectionsList.innerHTML = data.detections.map(d => {
+                        const distColor = d.distance === 'very close' ? '#ef4444' : d.distance === 'close' ? '#f59e0b' : '#10b981';
+                        return `<div class="detection-item" style="border-left-color:${distColor}">
+                            <strong>${d.object.toUpperCase()}</strong>
+                            POSITION: ${d.position.toUpperCase()}<br>
+                            DISTANCE: <span style="color:${distColor};font-weight:800">${d.distance.toUpperCase()}</span>
+                            ${d.track_id !== null ? `<br><span style="color:#64748b;font-size:0.85em">ID #${d.track_id}</span>` : ''}
+                        </div>`;
+                    }).join('');
+                }
+
+            } catch (e) {
+                console.log(e);
+            }
+        }
+
+
+        async function start() {
+            if (isRunning) return;
+            if (await startCamera()) {
+                isRunning = true;
+                interactionArea.classList.add('active');
+                statusBadge.classList.add('active');
+                statusBadge.textContent = 'ACTIVE';
+                
+                startOverlay.style.opacity = '0';
+                startOverlay.style.pointerEvents = 'none';
+                
+                instructionBox.textContent = "Scanning surroundings...";
+                
+                // Allow camera to warm up (auto-exposure settle)
+                setTimeout(() => detect(), 1500);
+                detectionInterval = setInterval(detect, 1800);  // GPU can handle faster cycles
+            }
+        }
+
+        function stop() {
+            if (!isRunning) return;
+            isRunning = false;
+            stopCamera();
+            clearInterval(detectionInterval);
+            
+            interactionArea.classList.remove('active');
+            statusBadge.classList.remove('active');
+            statusBadge.textContent = 'STOPPED';
+            
+            startOverlay.style.opacity = '1';
+            startOverlay.style.pointerEvents = 'auto';
+            
+            instructionBox.textContent = "Navigation stopped.";
+            detectionsList.innerHTML = `<div style="font-size: clamp(1.6rem, 4vw, 2rem); color: #94a3b8; font-style: italic; font-weight: 500; padding: 20px 0;">No objects detected yet.</div>`;
+            
+            if (currentAudio) currentAudio.pause();
+        }
+
+        // Tap Handlers
+        function handleTap(e) {
+            e.preventDefault();
+            const now = Date.now();
+            if (now - lastTapTime < 350) {
+                // Double tap - toggle fullscreen
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(()=>{});
+                } else {
+                    document.exitFullscreen().catch(()=>{});
+                }
+            } else {
+                // Single tap
+                setTimeout(() => {
+                    if (!isRunning && Date.now() - lastTapTime >= 350) {
+                        start();
+                    }
+                }, 350);
+            }
+            lastTapTime = now;
+        }
+
+        // Make the whole body a target as well, except for cards if they are large enough to distract clicks
+        document.body.addEventListener('click', (e) => {
+            unlockAudio();
+            if(!isRunning && e.target === document.body) {
+                start();
+            }
+        });
+
+        startOverlay.addEventListener('click', (e) => {
+            e.stopPropagation();
+            unlockAudio();
+            start();
+        });
+
+        interactionArea.addEventListener('click', (e) => {
+            unlockAudio();
+            handleTap(e);
+        });
+        
+        // Touch to hold (Stop mechanism)
+        interactionArea.addEventListener('touchstart', (e)=>{
+             unlockAudio();
+             holdTimeout = setTimeout(() => { if (isRunning) stop(); }, 1200);
+        });
+        interactionArea.addEventListener('touchend', (e)=>{
+             clearTimeout(holdTimeout);
+             // Ensure it fires tap since touchend won't automatically trigger click consistently on overlap
+             if(e.target === startOverlay || e.target.parentElement === startOverlay) {
+                 unlockAudio();
+                 start();
+             }
+        });
+        interactionArea.addEventListener('mousedown', ()=>{
+             unlockAudio();
+             holdTimeout = setTimeout(() => { if (isRunning) stop(); }, 1200);
+        });
+        interactionArea.addEventListener('mouseup', () => clearTimeout(holdTimeout));
+        interactionArea.addEventListener('mouseleave', () => clearTimeout(holdTimeout));
+
+    </script>
+</body>
+</html>
