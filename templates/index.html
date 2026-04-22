@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,8 +15,15 @@
             --neon-red: #ef4444;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; user-select: none; -webkit-tap-highlight-color: transparent;}
-        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         body {
             background-color: #050510;
             color: #ffffff;
@@ -36,12 +44,31 @@
             pointer-events: none;
         }
 
-        .orb-1 { width: 45vw; height: 45vw; background: #e11d48; top: 0; left: 0; }
-        .orb-2 { width: 55vw; height: 55vw; background: #4f46e5; bottom: 0; right: 0; animation-delay: -7s; }
+        .orb-1 {
+            width: 45vw;
+            height: 45vw;
+            background: #e11d48;
+            top: 0;
+            left: 0;
+        }
+
+        .orb-2 {
+            width: 55vw;
+            height: 55vw;
+            background: #4f46e5;
+            bottom: 0;
+            right: 0;
+            animation-delay: -7s;
+        }
 
         @keyframes float {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(5vw, 15vh) scale(1.1); }
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            100% {
+                transform: translate(5vw, 15vh) scale(1.1);
+            }
         }
 
         .header {
@@ -74,7 +101,9 @@
         }
 
         @media(min-width: 1100px) {
-            .main-container { grid-template-columns: 1.5fr 1fr; }
+            .main-container {
+                grid-template-columns: 1.5fr 1fr;
+            }
         }
 
         .video-section {
@@ -83,7 +112,7 @@
             border: 3px solid var(--glass-border);
             border-radius: 36px;
             overflow: hidden;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
             transition: all 0.3s ease;
@@ -106,8 +135,8 @@
             position: absolute;
             top: 24px;
             right: 24px;
-            background: rgba(0,0,0,0.8);
-            border: 2px solid rgba(255,255,255,0.2);
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid rgba(255, 255, 255, 0.2);
             padding: 14px 28px;
             border-radius: 999px;
             font-size: 1.4rem;
@@ -128,7 +157,7 @@
         .overlay {
             position: absolute;
             inset: 0;
-            background: rgba(0,0,0,0.65);
+            background: rgba(0, 0, 0, 0.65);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             display: flex;
@@ -146,7 +175,7 @@
             font-size: clamp(2.5rem, 6vw, 4rem);
             font-weight: 900;
             margin-bottom: 20px;
-            text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
         }
 
         .overlay p {
@@ -154,7 +183,7 @@
             color: #e2e8f0;
             max-width: 800px;
             line-height: 1.4;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
         }
 
         .info-section {
@@ -173,7 +202,7 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
         }
 
         .card h2 {
@@ -181,7 +210,7 @@
             font-weight: 900;
             margin-bottom: 24px;
             color: #f8fafc;
-            border-bottom: 3px solid rgba(255,255,255,0.1);
+            border-bottom: 3px solid rgba(255, 255, 255, 0.1);
             padding-bottom: 16px;
             letter-spacing: 1px;
             display: flex;
@@ -203,11 +232,11 @@
             font-weight: 800;
             line-height: 1.3;
             color: #ffffff;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
         }
 
         .detection-item {
-            background: rgba(255,255,255,0.08);
+            background: rgba(255, 255, 255, 0.08);
             border-radius: 24px;
             padding: 24px 30px;
             margin-bottom: 20px;
@@ -229,6 +258,7 @@
         .depth-bar-wrap {
             margin-top: 24px;
         }
+
         .depth-bar-label {
             font-size: 1.1rem;
             color: #94a3b8;
@@ -237,6 +267,7 @@
             margin-bottom: 10px;
             text-transform: uppercase;
         }
+
         .depth-bar {
             display: flex;
             gap: 6px;
@@ -244,15 +275,26 @@
             border-radius: 14px;
             overflow: hidden;
         }
+
         .depth-zone {
             flex: 1;
             border-radius: 8px;
             transition: background 0.4s ease, transform 0.3s ease;
-            background: rgba(255,255,255,0.08);
+            background: rgba(255, 255, 255, 0.08);
         }
-        .depth-zone.danger  { background: #ef4444; }
-        .depth-zone.caution { background: #f59e0b; }
-        .depth-zone.safe    { background: #10b981; }
+
+        .depth-zone.danger {
+            background: #ef4444;
+        }
+
+        .depth-zone.caution {
+            background: #f59e0b;
+        }
+
+        .depth-zone.safe {
+            background: #10b981;
+        }
+
         .depth-zone-labels {
             display: flex;
             justify-content: space-between;
@@ -265,6 +307,7 @@
         .slider-wrap {
             margin-top: 24px;
         }
+
         .slider-label {
             font-size: 1.1rem;
             color: #94a3b8;
@@ -274,6 +317,7 @@
             display: flex;
             justify-content: space-between;
         }
+
         input[type=range] {
             width: 100%;
             accent-color: #818cf8;
@@ -283,16 +327,24 @@
 
         /* Haptic flash */
         @keyframes danger-flash {
-            0%,100% { box-shadow: 0 0 50px rgba(16,185,129,0.4); }
-            50%      { box-shadow: 0 0 80px rgba(239,68,68,0.85); }
+
+            0%,
+            100% {
+                box-shadow: 0 0 50px rgba(16, 185, 129, 0.4);
+            }
+
+            50% {
+                box-shadow: 0 0 80px rgba(239, 68, 68, 0.85);
+            }
         }
+
         .video-section.danger-alert {
             animation: danger-flash 0.4s ease 2;
             border-color: #ef4444;
         }
-
     </style>
 </head>
+
 <body>
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
@@ -304,9 +356,9 @@
     <div class="main-container">
         <div class="video-section" id="interactionArea">
             <video id="videoElement" autoplay playsinline muted></video>
-            
+
             <div class="status-badge" id="statusBadge">STOPPED</div>
-            
+
             <div class="overlay" id="startOverlay">
                 <h2>READY TO NAVIGATE</h2>
                 <p><b>TAP ANYWHERE TO START</b></p>
@@ -345,28 +397,31 @@
                         <span id="confVal">0.45</span>
                     </div>
                     <input type="range" id="confSlider" min="0.2" max="0.8" step="0.05" value="0.45"
-                           oninput="document.getElementById('confVal').textContent=parseFloat(this.value).toFixed(2)">
+                        oninput="document.getElementById('confVal').textContent=parseFloat(this.value).toFixed(2)">
                 </div>
             </div>
 
             <div class="card">
                 <h2>DETECTED OBJECTS</h2>
-                <div id="detectionsList" style="overflow-y: auto; max-height: 500px; padding-right: 12px;" aria-live="polite">
-                    <div style="font-size: clamp(1.6rem, 4vw, 2rem); color: #94a3b8; font-style: italic; font-weight: 500; padding: 20px 0;">No objects detected yet.</div>
+                <div id="detectionsList" style="overflow-y: auto; max-height: 500px; padding-right: 12px;"
+                    aria-live="polite">
+                    <div
+                        style="font-size: clamp(1.6rem, 4vw, 2rem); color: #94a3b8; font-style: italic; font-weight: 500; padding: 20px 0;">
+                        No objects detected yet.</div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        const video           = document.getElementById('videoElement');
+        const video = document.getElementById('videoElement');
         const interactionArea = document.getElementById('interactionArea');
-        const startOverlay    = document.getElementById('startOverlay');
-        const statusBadge     = document.getElementById('statusBadge');
-        const detectionsList  = document.getElementById('detectionsList');
-        const instructionBox  = document.getElementById('instructionBox');
-        const confSlider      = document.getElementById('confSlider');
-        const zones           = [0,1,2,3,4].map(i => document.getElementById(`zone${i}`));
+        const startOverlay = document.getElementById('startOverlay');
+        const statusBadge = document.getElementById('statusBadge');
+        const detectionsList = document.getElementById('detectionsList');
+        const instructionBox = document.getElementById('instructionBox');
+        const confSlider = document.getElementById('confSlider');
+        const zones = [0, 1, 2, 3, 4].map(i => document.getElementById(`zone${i}`));
 
         let stream = null;
         let detectionInterval = null;
@@ -381,8 +436,8 @@
             const voices = speechSynthesis.getVoices();
             // Prefer a natural-sounding English voice
             _voice = voices.find(v => v.lang.startsWith('en') && v.localService) ||
-                     voices.find(v => v.lang.startsWith('en')) ||
-                     null;
+                voices.find(v => v.lang.startsWith('en')) ||
+                null;
         }
         speechSynthesis.onvoiceschanged = _loadVoice;
         _loadVoice();
@@ -392,7 +447,7 @@
             speechSynthesis.cancel();                    // drop any queued/current speech
             const utt = new SpeechSynthesisUtterance(text);
             if (_voice) utt.voice = _voice;
-            utt.rate   = 1.25;   // slightly faster — urgent navigation context
+            utt.rate = 1.25;   // slightly faster — urgent navigation context
             utt.volume = 1.0;
             speechSynthesis.speak(utt);
         }
@@ -421,16 +476,16 @@
         }
 
         // Update 5-zone depth bar
-        const WALL_THRESH    = 600;
+        const WALL_THRESH = 600;
         const CAUTION_THRESH = 420;
         function updateDepthBar(zones_data) {
             if (!zones_data || zones_data.length !== 5) return;
             zones.forEach((el, i) => {
                 const v = zones_data[i];
-                el.classList.remove('danger','caution','safe');
-                if (v > WALL_THRESH)         el.classList.add('danger');
+                el.classList.remove('danger', 'caution', 'safe');
+                if (v > WALL_THRESH) el.classList.add('danger');
                 else if (v > CAUTION_THRESH) el.classList.add('caution');
-                else                         el.classList.add('safe');
+                else el.classList.add('safe');
             });
         }
 
@@ -459,7 +514,7 @@
         function captureFrame() {
             if (!video.videoWidth || !video.videoHeight || video.videoWidth === 0) return null;
             const canvas = document.createElement('canvas');
-            canvas.width  = video.videoWidth;
+            canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             canvas.getContext('2d').drawImage(video, 0, 0);
             return canvas.toDataURL('image/jpeg', 0.82);
@@ -527,12 +582,12 @@
                 interactionArea.classList.add('active');
                 statusBadge.classList.add('active');
                 statusBadge.textContent = 'ACTIVE';
-                
+
                 startOverlay.style.opacity = '0';
                 startOverlay.style.pointerEvents = 'none';
-                
+
                 instructionBox.textContent = "Scanning surroundings...";
-                
+
                 // Allow camera to warm up (auto-exposure settle)
                 setTimeout(() => detect(), 1500);
                 detectionInterval = setInterval(detect, 1800);  // GPU can handle faster cycles
@@ -544,17 +599,17 @@
             isRunning = false;
             stopCamera();
             clearInterval(detectionInterval);
-            
+
             interactionArea.classList.remove('active');
             statusBadge.classList.remove('active');
             statusBadge.textContent = 'STOPPED';
-            
+
             startOverlay.style.opacity = '1';
             startOverlay.style.pointerEvents = 'auto';
-            
+
             instructionBox.textContent = "Navigation stopped.";
             detectionsList.innerHTML = `<div style="font-size: clamp(1.6rem, 4vw, 2rem); color: #94a3b8; font-style: italic; font-weight: 500; padding: 20px 0;">No objects detected yet.</div>`;
-            
+
             if (currentAudio) currentAudio.pause();
         }
 
@@ -565,9 +620,9 @@
             if (now - lastTapTime < 350) {
                 // Double tap - toggle fullscreen
                 if (!document.fullscreenElement) {
-                    document.documentElement.requestFullscreen().catch(()=>{});
+                    document.documentElement.requestFullscreen().catch(() => { });
                 } else {
-                    document.exitFullscreen().catch(()=>{});
+                    document.exitFullscreen().catch(() => { });
                 }
             } else {
                 // Single tap
@@ -583,7 +638,7 @@
         // Make the whole body a target as well, except for cards if they are large enough to distract clicks
         document.body.addEventListener('click', (e) => {
             unlockAudio();
-            if(!isRunning && e.target === document.body) {
+            if (!isRunning && e.target === document.body) {
                 start();
             }
         });
@@ -598,27 +653,28 @@
             unlockAudio();
             handleTap(e);
         });
-        
+
         // Touch to hold (Stop mechanism)
-        interactionArea.addEventListener('touchstart', (e)=>{
-             unlockAudio();
-             holdTimeout = setTimeout(() => { if (isRunning) stop(); }, 1200);
+        interactionArea.addEventListener('touchstart', (e) => {
+            unlockAudio();
+            holdTimeout = setTimeout(() => { if (isRunning) stop(); }, 1200);
         });
-        interactionArea.addEventListener('touchend', (e)=>{
-             clearTimeout(holdTimeout);
-             // Ensure it fires tap since touchend won't automatically trigger click consistently on overlap
-             if(e.target === startOverlay || e.target.parentElement === startOverlay) {
-                 unlockAudio();
-                 start();
-             }
+        interactionArea.addEventListener('touchend', (e) => {
+            clearTimeout(holdTimeout);
+            // Ensure it fires tap since touchend won't automatically trigger click consistently on overlap
+            if (e.target === startOverlay || e.target.parentElement === startOverlay) {
+                unlockAudio();
+                start();
+            }
         });
-        interactionArea.addEventListener('mousedown', ()=>{
-             unlockAudio();
-             holdTimeout = setTimeout(() => { if (isRunning) stop(); }, 1200);
+        interactionArea.addEventListener('mousedown', () => {
+            unlockAudio();
+            holdTimeout = setTimeout(() => { if (isRunning) stop(); }, 1200);
         });
         interactionArea.addEventListener('mouseup', () => clearTimeout(holdTimeout));
         interactionArea.addEventListener('mouseleave', () => clearTimeout(holdTimeout));
 
     </script>
 </body>
+
 </html>
